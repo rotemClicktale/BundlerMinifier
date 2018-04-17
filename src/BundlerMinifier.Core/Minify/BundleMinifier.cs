@@ -46,7 +46,7 @@ namespace BundlerMinifier
             }
             else if (bundle.IsGzipEnabled)
             {
-                string minFile = bundle.IsMinificationEnabled ? GetMinFileName(bundle.GetAbsoluteOutputFile()) : bundle.GetAbsoluteOutputFile();
+                string minFile = bundle.IsMinificationEnabled ? GetMinFileName(bundle.GetAbsoluteOutputFile(), bundle.MinFileName) : bundle.GetAbsoluteOutputFile();
                 GzipFile(minFile, bundle, minResult);
             }
 
@@ -65,7 +65,7 @@ namespace BundlerMinifier
             }
             else
             {
-                string minFile = GetMinFileName(minResult.FileName);
+                string minFile = GetMinFileName(minResult.FileName, bundle.MinFileName);
                 string mapFile = minFile + ".map";
 
                 using (StringWriter writer = new StringWriter())
@@ -113,7 +113,7 @@ namespace BundlerMinifier
 
         private static void WriteMinFile(Bundle bundle, MinificationResult minResult, UglifyResult uglifyResult)
         {
-            var minFile = GetMinFileName(minResult.FileName);
+            var minFile = GetMinFileName(minResult.FileName, bundle.MinFileName);
             minResult.MinifiedContent = uglifyResult.Code?.Trim();
 
             if (!uglifyResult.HasErrors)
@@ -184,15 +184,23 @@ namespace BundlerMinifier
             });
         }
 
-        public static string GetMinFileName(string file)
+        public static string GetMinFileName(string file, string minFile)
         {
-            string fileName = Path.GetFileName(file);
+            
+            if (string.IsNullOrEmpty(minFile))
+            {
+                string fileName = Path.GetFileName(file);
+                if (fileName.IndexOf(".min.", StringComparison.OrdinalIgnoreCase) > 0)
+                    return file;
 
-            if (fileName.IndexOf(".min.", StringComparison.OrdinalIgnoreCase) > 0)
-                return file;
-
-            string ext = Path.GetExtension(file);
-            return file.Substring(0, file.LastIndexOf(ext, StringComparison.OrdinalIgnoreCase)) + ".min" + ext;
+                string ext = Path.GetExtension(file);
+                return file.Substring(0, file.LastIndexOf(ext, StringComparison.OrdinalIgnoreCase)) + ".min" + ext;
+            }
+            else
+            {
+                return minFile;
+            }
+               
         }
 
         static void OnBeforeWritingMinFile(string file, string minFile, Bundle bundle, bool containsChanges)

@@ -39,7 +39,14 @@ namespace BundlerMinifier
                 return Minify.ContainsKey("enabled") && Minify["enabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
             }
         }
-
+        internal string MinFileName
+        {
+            get
+            {
+                if (Minify.ContainsKey("minFileName")) return Minify["minFileName"].ToString();              
+                return string.Empty;
+           }
+        }
         internal bool IsGzipEnabled
         {
             get
@@ -91,7 +98,7 @@ namespace BundlerMinifier
                         relative = inputFile.Substring(0, last + 1);
 
                     var output = GetAbsoluteOutputFile();
-                    var outputMin = BundleMinifier.GetMinFileName(output);
+                    var outputMin = BundleMinifier.GetMinFileName(output, MinFileName);
 
                     string searchDir = new FileInfo(Path.Combine(folder, relative).NormalizePath()).FullName;
                     var allFiles = Directory.EnumerateFiles(searchDir, "*" + ext, SearchOption.AllDirectories).Select(f => f.Replace(folder + FileHelpers.PathSeparatorChar, ""));
@@ -199,6 +206,15 @@ namespace BundlerMinifier
                 if (!valueComparer.Equals(kvp.Value, secondValue)) return false;
             }
             return true;
+        }
+
+        public class OutPutFileName
+        {
+            [JsonProperty("FileName")]
+            public string FileName { get; set; }
+
+            [JsonProperty("minFileName")]
+            public string MinFileName { get; set; }
         }
     }
 }

@@ -102,7 +102,7 @@ namespace BundlerMinifier
             var inputs = bundle.GetAbsoluteInputFiles();
             bool changed = false;
 
-            if (bundle.GetAbsoluteInputFiles(true).Count > 1 || bundle.InputFiles.FirstOrDefault() != bundle.OutputFileName)
+            if (bundle.GetAbsoluteInputFiles(true).Count > 1 || bundle.InputFiles.FirstOrDefault() != bundle.OutputFileName || !string.IsNullOrEmpty(bundle.MinFileName))
             {
                 BundleHandler.ProcessBundle(baseFolder, bundle);
 
@@ -124,7 +124,7 @@ namespace BundlerMinifier
                 }
             }
 
-            string minFile = BundleMinifier.GetMinFileName(bundle.GetAbsoluteOutputFile());
+            string minFile = BundleMinifier.GetMinFileName(bundle.GetAbsoluteOutputFile(), bundle.MinFileName);
 
             if (bundle.IsMinificationEnabled || bundle.IsGzipEnabled)
             {
@@ -164,7 +164,7 @@ namespace BundlerMinifier
                 }
             }
 
-            string minFile = BundleMinifier.GetMinFileName(bundle.GetAbsoluteOutputFile());
+            string minFile = BundleMinifier.GetMinFileName(bundle.GetAbsoluteOutputFile(), bundle.MinFileName);
             string mapFile = minFile + ".map";
             string gzFile = minFile + ".gz";
 
