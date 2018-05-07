@@ -9,10 +9,14 @@
   <UsingTask AssemblyFile="$(_BundlerMinifierTaskAssembly)" TaskName="BundlerMinifier.BundlerCleanTask"/>
 
   <Target Name="BundleMinify" AfterTargets="CompileTypeScriptWithTSConfig" BeforeTargets="BeforeCompile" Condition="'$(RunBundleMinify)' != 'False'">
+    <Message Text="BundleMinify Started" Importance="high" />
     <BundlerMinifier.BundlerBuildTask FileName="$(MSBuildProjectDirectory)\bundleconfig.json" />
+    <Message Text="BundleMinify Ended" Importance="high" />
   </Target>
 
   <Target Name="BundleMinifyClean" AfterTargets="CoreClean" Condition="'$(RunBundleMinify)' != 'False'">
+    <Message Text="BundleMinifyClean Started" Importance="high" />
     <BundlerMinifier.BundlerCleanTask FileName="$(MSBuildProjectDirectory)\bundleconfig.json" />
+    <Message Text="BundleMinifyClean Ended" Importance="high" />
   </Target>
 </Project>

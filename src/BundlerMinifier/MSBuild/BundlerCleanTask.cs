@@ -11,44 +11,53 @@ namespace BundlerMinifier
 
         public override bool Execute()
         {
-            FileInfo configFile = new FileInfo(FileName);
-
-            Log.LogMessage(MessageImportance.High, Environment.NewLine + "Bundler: Cleaning output from " + configFile.Name);
-
-            if (!configFile.Exists)
+            try
             {
-                Log.LogWarning(configFile.FullName + " does not exist");
-                return true;
-            }
+                FileInfo configFile = new FileInfo(FileName);
 
-            var bundles = BundleHandler.GetBundles(configFile.FullName);
+                Log.LogMessage(MessageImportance.High, Environment.NewLine + "Bundler: Cleaning output from " + configFile.Name);
 
-            if (bundles != null)
-            {
-                foreach (Bundle bundle in bundles)
+                if (!configFile.Exists)
                 {
-                    var outputFile = bundle.GetAbsoluteOutputFile();
-                    var inputFiles = bundle.GetAbsoluteInputFiles();
-
-                    var minFile = BundleMinifier.GetMinFileName(outputFile, bundle.MinFileName);
-                    var mapFile = minFile + ".map";
-                    var gzipFile = minFile + ".gz";
-
-                    if (!inputFiles.Contains(outputFile))
-                        Deletefile(outputFile);
-
-                    Deletefile(minFile);
-                    Deletefile(mapFile);
-                    Deletefile(gzipFile);
+                    Log.LogWarning(configFile.FullName + " does not exist");
+                    return true;
                 }
 
-                Log.LogMessage(MessageImportance.High, "Bundler: Done cleaning output file from " + configFile.Name);
+                var bundles = BundleHandler.GetBundles(configFile.FullName);
 
-                return true;
+                if (bundles != null)
+                {
+                    foreach (Bundle bundle in bundles)
+                    {
+                        var outputFile = bundle.GetAbsoluteOutputFile();
+                        var inputFiles = bundle.GetAbsoluteInputFiles();
+
+                        var minFile = BundleMinifier.GetMinFileName(outputFile, bundle.MinFileName);
+                        var mapFile = minFile + ".map";
+                        var gzipFile = minFile + ".gz";
+
+                        if (!inputFiles.Contains(outputFile))
+                            Deletefile(outputFile);
+
+                        Deletefile(minFile);
+                        Deletefile(mapFile);
+                        Deletefile(gzipFile);
+                    }
+
+                    Log.LogMessage(MessageImportance.High, "Bundler: Done cleaning output file from " + configFile.Name);
+
+                    return true;
+                }
+
+                Log.LogWarning($"There was an error reading {configFile.Name}");
+                return false;
             }
-
-            Log.LogWarning($"There was an error reading {configFile.Name}");
-            return false;
+            catch (Exception e)
+            {
+                Log.LogErrorFromException(e);
+                Log.LogErrorFromException(e.InnerException);
+                return false;
+            }
         }
 
         private void Deletefile(string file)

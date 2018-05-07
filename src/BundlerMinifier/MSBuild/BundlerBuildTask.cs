@@ -22,28 +22,35 @@ namespace BundlerMinifier
         /// </summary>
         public override bool Execute()
         {
-            FileInfo configFile = new FileInfo(FileName);
-
-            if (!configFile.Exists)
+            try
             {
-                Log.LogWarning(configFile.FullName + " does not exist");
-                return true;
+                Log.LogMessage(MessageImportance.High, $"{Environment.NewLine}BundleConfig: {FileName}");
+                FileInfo configFile = new FileInfo(FileName);
+
+                if (!configFile.Exists)
+                {
+                    Log.LogWarning(configFile.FullName + " does not exist");
+                    return true;
+                }
+
+                Log.LogMessage(MessageImportance.High, Environment.NewLine + $"Bundler: Begin processing {configFile.Name}");
+                BundleFileProcessor processor = new BundleFileProcessor();
+                processor.Processing += (s, e) => { RemoveReadonlyFlagFromFile(e.Bundle.GetAbsoluteOutputFile()); };
+                processor.AfterBundling += Processor_AfterProcess;
+                BundleMinifier.BeforeWritingMinFile += (s, e) => { RemoveReadonlyFlagFromFile(e.ResultFile); };
+                processor.BeforeWritingSourceMap += (s, e) => { RemoveReadonlyFlagFromFile(e.ResultFile); };
+                processor.AfterWritingSourceMap += Processor_AfterWritingSourceMap;
+                BundleMinifier.ErrorMinifyingFile += BundleMinifier_ErrorMinifyingFile;
+                BundleMinifier.AfterWritingMinFile += FileMinifier_AfterWritingMinFile;
+                processor.Process(configFile.FullName);
+                Log.LogMessage(MessageImportance.High, $"Bundler: Done processing {configFile.Name}");
             }
-
-            Log.LogMessage(MessageImportance.High, Environment.NewLine + "Bundler: Begin processing " + configFile.Name);
-
-            BundleFileProcessor processor = new BundleFileProcessor();
-            processor.Processing += (s, e) => { RemoveReadonlyFlagFromFile(e.Bundle.GetAbsoluteOutputFile()); };
-            processor.AfterBundling += Processor_AfterProcess;
-            BundleMinifier.BeforeWritingMinFile += (s, e) => { RemoveReadonlyFlagFromFile(e.ResultFile); };
-            processor.BeforeWritingSourceMap += (s, e) => { RemoveReadonlyFlagFromFile(e.ResultFile); };
-            processor.AfterWritingSourceMap += Processor_AfterWritingSourceMap;
-            BundleMinifier.ErrorMinifyingFile += BundleMinifier_ErrorMinifyingFile;
-            BundleMinifier.AfterWritingMinFile += FileMinifier_AfterWritingMinFile;
-
-            processor.Process(configFile.FullName);
-
-            Log.LogMessage(MessageImportance.High, "Bundler: Done processing " + configFile.Name);
+            catch (Exception e)
+            {
+                _isSuccessful = false;
+                Log.LogErrorFromException(e);
+                Log.LogErrorFromException(e.InnerException);
+            }
 
             return _isSuccessful;
         }

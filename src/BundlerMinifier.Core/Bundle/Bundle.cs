@@ -207,14 +207,5 @@ namespace BundlerMinifier
             }
             return true;
         }
-
-        public class OutPutFileName
-        {
-            [JsonProperty("FileName")]
-            public string FileName { get; set; }
-
-            [JsonProperty("minFileName")]
-            public string MinFileName { get; set; }
-        }
     }
 }
