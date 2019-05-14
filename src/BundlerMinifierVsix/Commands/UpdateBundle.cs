@@ -68,20 +68,28 @@ namespace BundlerMinifierVsix.Commands
 
         private void UpdateSelectedBundle(object sender, EventArgs e)
         {
-            var file = ProjectHelpers.GetSelectedItemPaths().FirstOrDefault();
-
-            if (string.IsNullOrEmpty(file)) // Project
+            try
             {
-                var project = ProjectHelpers.GetActiveProject();
+                var file = ProjectHelpers.GetSelectedItemPaths().FirstOrDefault();
 
-                if (project != null)
-                    file = project.GetConfigFile();
+                if (string.IsNullOrEmpty(file)) // Project
+                {
+                    var project = ProjectHelpers.GetActiveProject();
+
+                    if (project != null)
+                        file = project.GetConfigFile();
+                }
+
+                if (!string.IsNullOrEmpty(file))
+                {
+                    BundleService.Process(file);
+                }
             }
-
-            if (!string.IsNullOrEmpty(file))
+            catch(Exception ex)
             {
-                BundleService.Process(file);
+                Logger.Log(ex);
             }
+         
         }
     }
 }

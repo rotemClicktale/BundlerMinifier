@@ -67,7 +67,8 @@ namespace BundlerMinifierVsix.Commands
 
                     if (!bundles.Any() && !isMinFile)
                     {
-                        var minFileName = FileHelpers.GetMinFileName(sourceFile);
+                        var minFileName = FileHelpers.GetMinFileName(sourceFile, bundles.FirstOrDefault<Bundle>().MinFileName);
+
                         bundles = BundleService.IsOutputConfigered(configFile, minFileName);
                     }
 
@@ -111,7 +112,9 @@ namespace BundlerMinifierVsix.Commands
             string configFile = Path.Combine(folder, Constants.CONFIG_FILENAME);
             IEnumerable<string> files = ProjectHelpers.GetSelectedItemPaths().Select(f => BundlerMinifier.FileHelpers.MakeRelative(configFile, f));
             string inputFile = item.Properties.Item("FullPath").Value.ToString();
-            string outputFile = FileHelpers.GetMinFileName(inputFile);
+             
+            var bundles = BundleFileProcessor.IsFileConfigured(configFile, inputFile);
+            string outputFile = FileHelpers.GetMinFileName(inputFile, bundles.FirstOrDefault<Bundle>().MinFileName);
 
             if (files.Count() > 1)
             {
@@ -120,7 +123,7 @@ namespace BundlerMinifierVsix.Commands
             else
             {
                 // Reminify file
-                var bundles = BundleFileProcessor.IsFileConfigured(configFile, inputFile);
+                
 
                 if (bundles.Any())
                 {
@@ -170,7 +173,7 @@ namespace BundlerMinifierVsix.Commands
             bundle.InputFiles.AddRange(files);
             return bundle;
         }
-        
+
         private static string GetOutputFileName(string inputFile, string extension)
         {
             string ext = extension.TrimStart('.');

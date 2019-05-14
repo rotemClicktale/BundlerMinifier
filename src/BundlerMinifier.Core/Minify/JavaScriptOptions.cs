@@ -1,5 +1,6 @@
 ﻿using NUglify;
 using NUglify.JavaScript;
+ using Newtonsoft.Json;
 
 namespace BundlerMinifier
 {
@@ -7,7 +8,8 @@ namespace BundlerMinifier
     {
         public static CodeSettings GetSettings(Bundle bundle)
         {
-            CodeSettings settings = new CodeSettings();
+            
+               CodeSettings settings = new CodeSettings();
             settings.AlwaysEscapeNonAscii = GetValue(bundle, "alwaysEscapeNonAscii", false) == "True";
 
             settings.PreserveImportantComments = GetValue(bundle, "preserveImportantComments", true) == "True";
@@ -38,7 +40,7 @@ namespace BundlerMinifier
             int size;
             if (int.TryParse(indentSize, out size))
                 settings.IndentSize = size;
-
+            string json = JsonConvert.SerializeObject(settings);
             return settings;
         }
 

@@ -4,7 +4,9 @@ using System.IO;
 using Minimatch;
 using Newtonsoft.Json;
 using System;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("BundlerMinifierVsix")]
 namespace BundlerMinifier
 {
     public class Bundle
@@ -43,9 +45,9 @@ namespace BundlerMinifier
         {
             get
             {
-                if (Minify.ContainsKey("minFileName")) return Minify["minFileName"].ToString();              
+                if (Minify.ContainsKey("minFileName")) return Minify["minFileName"].ToString();
                 return string.Empty;
-           }
+            }
         }
         internal bool IsGzipEnabled
         {
